@@ -1,0 +1,6 @@
+pyproject.toml
+test_tokenizer.py
+test_tokenizer.egg-info/PKG-INFO
+test_tokenizer.egg-info/SOURCES.txt
+test_tokenizer.egg-info/dependency_links.txt
+test_tokenizer.egg-info/top_level.txt
