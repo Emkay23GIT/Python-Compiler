@@ -51,15 +51,30 @@ class Parser:
 
         right_op = self.eat(TokenType.INT)
 
-        self.eat(TokenType.EOF)
+        #self.eat(TokenType.EOF)
 
         return BinOp(op, Int(left_op.value), Int(right_op.value))
+    
+
+    @staticmethod
+    def print_ast(tree: TreeNode, depth: int = 0) -> None:
+        indent = "    " * depth
+        if isinstance(tree, BinOp):
+            print(indent + tree.op)
+            parser.print_ast(tree.left, depth + 1)
+            parser.print_ast(tree.right, depth + 1)
+        elif isinstance(tree, Int):
+            print(indent + str(tree.value))
+        else:
+            raise RuntimeError(f"Can't print a node of type {tree.__class__.__name__}")
+
 
 if __name__ == "__main__":
     from tokenizer import Tokenizer
 
     code = "3 + 5 - 2"
     parser = Parser(list(Tokenizer(code)))
-    print(parser.parse())
+    ast = parser.parse()
+    parser.print_ast(ast)
 
     # BinOp(op='+', left=Int(value=3), right=Int(value=5)) 
