@@ -90,3 +90,22 @@ def test_tokenizer_recognises_each_token(code: str, token: Token):
 def test_tokenizer_long_integers(code: str, expected_value: int):
     tokens = list(Tokenizer(code))
     assert [token.value for token in tokens[:-1]] == [expected_value], f"Expected {expected_value}, but got {[token.value for token in tokens[:-1]]}" # Compare only values, excluding EOF
+
+@pytest.mark.parametrize(
+    ["code", "token"],
+    [
+        ("1.2", Token(TokenType.FLOAT, 1.2)),
+        (".12", Token(TokenType.FLOAT, 0.12)),
+        ("73.", Token(TokenType.FLOAT, 73.0)),
+        ("0.005", Token(TokenType.FLOAT, 0.005)),
+        ("123.456", Token(TokenType.FLOAT, 123.456)),
+    ],
+)
+def test_tokenizer_floats(code: str, token: Token):
+    tokens = list(Tokenizer(code))
+    assert tokens == [token, Token(TokenType.EOF)]
+
+def test_tokenizer_lone_period_is_error():
+    # Make sure we don't get a float out of a single period `.`.
+    with pytest.raises(RuntimeError):
+        list(Tokenizer("  .  "))

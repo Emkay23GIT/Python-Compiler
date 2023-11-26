@@ -5,6 +5,7 @@ from string import digits
 
 class TokenType(Enum):
     INT = auto()
+    FLOAT = auto()
     PLUS = auto()
     MINUS = auto()
     EOF = auto()
@@ -42,9 +43,30 @@ class Tokenizer:
             return Token(TokenType.MINUS)
         elif char in digits:
             integer = self.consume_int()  # If we found a digit, consume an integer.
-            return Token(TokenType.INT, int(char))
+            # Is the integer followed by a decimal part?
+            if self.ptr < len(self.code) and self.code[self.ptr] == ".":
+                decimal = self.consume_decimal()
+                return Token(TokenType.FLOAT, integer + decimal)
+            return Token(TokenType.INT, integer)
+        elif ( # Make sure we dont read a lonee period '.'.
+            char == "."
+            and self.ptr + 1 < len(self.code)
+            and self.code[self.ptr + 1] in digits
+            ):
+            decimal = self.consume_decimal()
+            return Token(TokenType.FLOAT, decimal)
         else:
             raise RuntimeError(f"Can't tokenize {char!r}.")
+        
+        def consume_decimal(self) -> float:
+            """Reads a decimal part that starts with a . and returns it as a float."""
+            start = self.ptr
+            self.ptr += 1
+            while self.ptr < len(self.code) and self.code[self.ptr] in digits:
+                self.ptr += 1
+            # Did we actually read _any_ digits or did we only manage to read the `.`?
+            float_str = self.code[start : self.ptr] if self.ptr - start > 1 else ".0"
+            return float(float_str)
         
     def __iter__(self) -> Generator[Token, None, None]:
         while (token := self.next_token()).type != TokenType.EOF:
